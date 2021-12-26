@@ -27,16 +27,7 @@ const [descriptions, setDescriptions] = useState([]);
 
 useEffect(() =>{
   fetch('http://ip-api.com/json/')
-    .then((response) =>{
-      if(response)
-      {
-        return response.json();
-      }else
-      {
-        console.log('error fetching json')
-        return;
-      }
-    })
+    .then((response) =>{  return response.json();})
     .then((data) =>{
       setCity(data.city);
       fetch('https://api.openweathermap.org/data/2.5/forecast?q='+ data.city +'&appid='+ key +'&units=metric')
@@ -62,7 +53,6 @@ useEffect(() =>{
           setDates([...dateSet]);
           let infoSet = [];
           dateSet.forEach((date) => {infoSet.push({stats:date.stats, date:date.date.charAt(0)})});
-          console.log(infoSet[0]);
           setDescriptions([...infoSet]);
         });
 
@@ -85,7 +75,6 @@ const handleChange = (event, newValue) => {
     let description = "Description";
     if(dates.length > 0)
     {
-      console.log(dates[0]);
       dayString = dates[index].date;
       aveTemp = dates[index].averageTemp;
       extraInfo = dates[index].stats.speed.toString();
