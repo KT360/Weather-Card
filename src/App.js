@@ -30,6 +30,7 @@ useEffect(() =>{
     .then((response) =>{  return response.json();})
     .then((data) =>{
       setCity(data.city);
+      console.log(data.city);
       fetch('https://api.openweathermap.org/data/2.5/forecast?q='+ data.city +'&appid='+ key +'&units=metric')
         .then((forecastResponse) =>{ return forecastResponse.json()})
         .then((forecastData) =>{
