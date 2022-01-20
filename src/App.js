@@ -26,7 +26,7 @@ const key = 'db89d335768a7658335905728b95f864';
 const [descriptions, setDescriptions] = useState([]);
 
 useEffect(() =>{
-  fetch('http://ip-api.com/json/')
+  fetch('/location')
     .then((response) =>{  return response.json();})
     .then((data) =>{
       setCity(data.city);
