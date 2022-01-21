@@ -2,63 +2,76 @@ import logo from './logo.svg';
 import './App.css';
 import Card from '@mui/material/Card';
 import { createTheme} from '@mui/material/styles';
-import { Avatar, CardActions, CardContent, Divider } from '@mui/material';
+import { Avatar, Button, CardActions, CardContent, Divider } from '@mui/material';
 import { deepOrange } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 import { Typography, CardHeader } from '@mui/material';
 import { ThemeProvider } from '@emotion/react';
 import {Box} from '@mui/material';
-import {Tabs, Tab} from '@mui/material';
+import {Tabs, Tab, TextField} from '@mui/material';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
+import QuizIcon from '@mui/icons-material/Quiz';
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import DateInfo from './DateInfo';
 import Grid from '@material-ui/core/Grid';
 
+
 function App() {
 
-const [city, setCity] = useState(null);
+const [city, setCity] = useState("");
 const [value, setValue] = useState(0);
-const [dates, setDates] = useState([])
+const [dates, setDates] = useState([]);
+const [error, setError] = useState(false);
+const [cityString, setCityString] = useState("");
+const [data, setData] = useState(false);
 const key = 'db89d335768a7658335905728b95f864';
 const [descriptions, setDescriptions] = useState([]);
 
-useEffect(() =>{
-  fetch('/location')
-    .then((response) =>{  return response.json();})
-    .then((data) =>{
-      setCity(data.city);
-      console.log(data.city);
-      fetch('https://api.openweathermap.org/data/2.5/forecast?q='+ data.city +'&appid='+ key +'&units=metric')
+const handleSearchChange = e =>{
+  setCity(e.target.value);
+}
+
+const searchCity = ()=>{
+  setCityString(city);
+  fetch('https://api.openweathermap.org/data/2.5/forecast?q='+ city +'&appid='+ key +'&units=metric')
         .then((forecastResponse) =>{ return forecastResponse.json()})
         .then((forecastData) =>{
 
-          let list = forecastData.list;
-          let index = 0;
-          let dateSet = [];
-          for(let i = 0; i<5; i++)
+          if(forecastData.cod == 200)
           {
-
-            let dateIdentifier = list[index].dt_txt.split(" ")[0];
-            let dateInfo = new DateInfo(dateIdentifier);
-            while(list[index].dt_txt.includes(dateInfo.dateText))
+            let list = forecastData.list;
+            let index = 0;
+            let dateSet = [];
+            for(let i = 0; i<5; i++)
             {
-              dateInfo.staggeredInfo.push(list[index]);
-              index++;
+
+              let dateIdentifier = list[index].dt_txt.split(" ")[0];
+              let dateInfo = new DateInfo(dateIdentifier);
+              while(list[index].dt_txt.includes(dateInfo.dateText))
+              {
+                dateInfo.staggeredInfo.push(list[index]);
+                index++;
+              }
+              dateSet.push(dateInfo);
             }
-            dateSet.push(dateInfo);
+
+            setDates([...dateSet]);
+            let infoSet = [];
+            dateSet.forEach((date) => {infoSet.push({stats:date.stats, date:date.date.charAt(0)})});
+            setDescriptions([...infoSet]);
+            setError(false);
+            setData(true);
+          }else
+          {
+            setError(true);
+            setCity("");
           }
-
-          setDates([...dateSet]);
-          let infoSet = [];
-          dateSet.forEach((date) => {infoSet.push({stats:date.stats, date:date.date.charAt(0)})});
-          setDescriptions([...infoSet]);
+          
         });
-
-    });
-},[]);
+} 
 
 
 const handleChange = (event, newValue) => {
@@ -97,7 +110,7 @@ const handleChange = (event, newValue) => {
             width:80,
             height:80
           }}></Avatar>} 
-          title={<Typography align="right" variant="h5">{city}</Typography>} subheader={<Typography align="right" variant="body1">{dayString}</Typography>} sx={{
+          title={<Typography align="right" variant="h5">{cityString}</Typography>} subheader={<Typography align="right" variant="body1">{dayString}</Typography>} sx={{
             top:50
           }}>
           </CardHeader>
@@ -136,20 +149,26 @@ const handleChange = (event, newValue) => {
   const CustomCard = styled(Card)(()=>({
     raised:true,
     eleveation:10,
-    maxWidth:800,
-    minHeight:200,
+    width:600,
+    minHeight:300,
     background: "linear-gradient(to right bottom, #329994, #315f78)"
   }));
 
 
   return (
 
+
     <Grid container spacing={10}
-    alignItems="flex-start"
-    justifyContent="center"
-    style={{ minHeight: '100vh' }}>
-      <Grid item xs={5}>
-      <CustomCard>
+    direction='column'
+    alignItems='center'
+    style={{ minHeight: '100vh'}}>
+      <Grid item xs={6}>
+        <TextField sx={{top:10}} value={city} id="search-bar" type="text" variant="outlined" label="Search City" error={error} helperText={error ? "Could not find city" : null} onChange={handleSearchChange}></TextField>
+        <Button variant='contained' color='success' sx={{height:55,top:10}} onClick={searchCity}>Search</Button>
+      </Grid>
+      <Grid item xs={12}>
+        
+        {data ? <CustomCard>
       <TabPanel value={value} index={0}/>
       <TabPanel value={value} index={1}/>
       <TabPanel value={value} index={2}/>
@@ -181,7 +200,17 @@ const handleChange = (event, newValue) => {
             </Typography>
           </CardContent>
         </Collapse>
-    </CustomCard>
+    </CustomCard> :
+    
+    <Card sx={{width:600,
+      height:300, background:'#329994'}}>
+      <CardContent>
+        <Box textAlign='center'>
+          <QuizIcon sx={{top:120,left:320, width:200, height:200}}/>
+        </Box>
+      </CardContent>
+    </Card>}
+      
   </Grid>
 </Grid>
     
