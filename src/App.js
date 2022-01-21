@@ -47,10 +47,9 @@ const searchCity = ()=>{
             let dateSet = [];
             for(let i = 0; i<5; i++)
             {
-
               let dateIdentifier = list[index].dt_txt.split(" ")[0];
               let dateInfo = new DateInfo(dateIdentifier);
-              while(list[index].dt_txt.includes(dateInfo.dateText))
+              while(index<40 && list[index].dt_txt.includes(dateInfo.dateText))
               {
                 dateInfo.staggeredInfo.push(list[index]);
                 index++;
