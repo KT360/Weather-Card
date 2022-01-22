@@ -27,7 +27,7 @@ const [dates, setDates] = useState([]);
 const [error, setError] = useState(false);
 const [cityString, setCityString] = useState("");
 const [data, setData] = useState(false);
-const key = 'db89d335768a7658335905728b95f864';
+const key = `${process.env.REACT_APP_WEATHER_API_KEY}`;
 const [descriptions, setDescriptions] = useState([]);
 
 const handleSearchChange = e =>{
